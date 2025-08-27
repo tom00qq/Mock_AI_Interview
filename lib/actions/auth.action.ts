@@ -1,6 +1,10 @@
 "use server";
 
-import { db } from "@/firebase/admin";
+import { auth, db } from "@/firebase/admin";
+import { cookies } from "next/headers";
+
+// Session duration (1 week)
+const SESSION_DURATION = 60 * 60 * 24 * 7;
 
 export const signUp = async (param: SignUpParams) => {
   const { uid, name, email } = param;
@@ -36,4 +40,67 @@ export const signUp = async (param: SignUpParams) => {
       message: "SignUp failed",
     };
   }
+};
+
+export const signIn = async (param: SignInParams) => {
+  const { idToken } = param;
+
+  try {
+    await setSessionCookie(idToken);
+
+    return {
+      success: true,
+      message: "Success",
+    };
+  } catch (error: any) {
+    return {
+      success: false,
+      message: "SignIn failed",
+    };
+  }
+};
+
+export const signOut = async () => {
+  const cookieStore = await cookies();
+  cookieStore.delete("session");
+};
+
+export const setSessionCookie = async (idToken: string) => {
+  const cookieStore = await cookies();
+
+  const sessionCookie = await auth.createSessionCookie(idToken, {
+    expiresIn: SESSION_DURATION * 1000,
+  });
+
+  // when response tell browser to set cookie
+  cookieStore.set("session", sessionCookie, {
+    maxAge: SESSION_DURATION,
+    httpOnly: true, // not allowed Js edit
+    secure: process.env.NODE_ENV === "production", // only with HTTPS
+    path: "/", // all path should pass cookie when request
+    sameSite: "lax", // only passs cookie with same site
+  });
+};
+
+export const getCurrentUser = async (): Promise<User | null> => {
+  const cookieStore = await cookies();
+
+  const sesstionCookie = cookieStore.get("session")?.value;
+  if (!sesstionCookie) return null;
+
+  const decodedClaims = await auth.verifySessionCookie(sesstionCookie, true);
+
+  const userRecord = await db.collection("users").doc(decodedClaims.uid).get();
+  if (!userRecord.exists) return null;
+
+  return {
+    ...userRecord.data(),
+    id: userRecord.id,
+  } as User;
+};
+
+export const isAuthenticated = async () => {
+  const user = await getCurrentUser();
+
+  return user ? true : false;
 };
