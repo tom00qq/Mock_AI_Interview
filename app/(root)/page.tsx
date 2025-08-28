@@ -2,6 +2,8 @@ import React from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { dummyInterviews } from "@/constants";
+import InterViewCard from "@/components/InterViewCard";
 
 const Page = () => {
   return (
@@ -22,6 +24,24 @@ const Page = () => {
           width={400}
           height={400}
         />
+      </section>
+      <section className="flex flex-col gap-6 mt-8 ">
+        <h2>Your Past Interviews</h2>
+
+        <div className="flex flex-wrap gap-6 max-lg:flex-col">
+          {dummyInterviews.map((interview) => {
+            return (
+              <InterViewCard
+                key={interview.id}
+                interviewId={interview.id}
+                role={interview.role}
+                type={interview.type}
+                techstack={interview.techstack}
+                createdAt={interview.createdAt}
+              />
+            );
+          })}
+        </div>
       </section>
     </>
   );
