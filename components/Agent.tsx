@@ -89,12 +89,18 @@ const Agent = ({ userName, userId, type }: AgentProps) => {
   const handleCall = async () => {
     setCallStatus(CallStatus.CONNECTING);
 
-    await vapi.start(process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID, {
-      variableValues: {
-        username: userName,
-        userid: userId,
-      },
-    });
+    await vapi.start(
+      undefined, // 替換 null 為 undefined
+      undefined, // 替換 null 為 undefined
+      undefined, // 替換 null 為 undefined
+      process.env.NEXT_PUBLIC_VAPI_WORKFLOW_ID,
+      {
+        variableValues: {
+          username: userName,
+          userid: userId,
+        },
+      }
+    );
   };
 
   const handleDisconnect = () => {
