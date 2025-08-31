@@ -30,7 +30,7 @@ export async function POST(request: Request) {
       type,
       techStack: techstack.split(","),
       questions: JSON.parse(questions),
-      useId: userid,
+      userId: userid,
       finalized: true,
       createdAt: new Date().toISOString(),
     };

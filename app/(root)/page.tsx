@@ -2,10 +2,21 @@ import React from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { dummyInterviews } from "@/constants";
 import InterViewCard from "@/components/InterViewCard";
+import {
+  getCurrentUser,
+  getInterviewsById,
+  getLatestInterviews,
+} from "@/lib/actions/auth.action";
 
-const Page = () => {
+const Page = async () => {
+  const user = await getCurrentUser();
+
+  const [latestInterviews, interviews] = await Promise.all([
+    await getLatestInterviews({ userId: user?.id! }),
+    await getInterviewsById(user?.id!),
+  ]);
+
   return (
     <>
       <section className="flex justify-between items-center px-16 py-6 max-sm:p-4 blue-gradient-dark rounded-3xl">
@@ -26,10 +37,29 @@ const Page = () => {
         />
       </section>
       <section className="flex flex-col gap-6 mt-8 ">
-        <h2>Your Past Interviews</h2>
+        <h2>Latest Interviews</h2>
 
         <div className="flex flex-wrap gap-6 max-lg:flex-col">
-          {dummyInterviews.map((interview) => {
+          {latestInterviews.map((interview) => {
+            return (
+              <InterViewCard
+                key={interview.id}
+                interviewId={interview.id}
+                role={interview.role}
+                type={interview.type}
+                techstack={interview.techstack}
+                createdAt={interview.createdAt}
+              />
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="flex flex-col gap-6 mt-8 ">
+        <h2>My Interviews</h2>
+
+        <div className="flex flex-wrap gap-6 max-lg:flex-col">
+          {interviews.map((interview) => {
             return (
               <InterViewCard
                 key={interview.id}
