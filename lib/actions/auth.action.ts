@@ -1,7 +1,6 @@
 "use server";
 
 import { auth, db } from "@/firebase/admin";
-import { Rethink_Sans } from "next/font/google";
 import { cookies } from "next/headers";
 
 // Session duration (1 week)
@@ -128,9 +127,9 @@ export const getLatestInterviews = async (
 
   const interviewRecords = await db
     .collection("interviews")
-    .orderBy("createdAt", "desc")
     .where("finalized", "==", true)
     .where("userId", "!=", userId)
+    .orderBy("createdAt", "desc")
     .limit(limit)
     .get();
 
